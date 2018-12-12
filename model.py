@@ -508,7 +508,7 @@ if __name__ == "__main__":
     env = gym.envs.make("CartPole-v0")
 
     # Dyna Q parameters
-    n = 10
+    n = 3
     learning_rate = 0.5
     discount_factor = .8
     capacity = 10000
@@ -531,7 +531,7 @@ if __name__ == "__main__":
                              planning_steps=n, discount_factor=discount_factor, lr=learning_rate, epsilon=0.2,
                              deterministic=False)
 
-    dynaQ.learn_policy(2000)
+    dynaQ.learn_policy(1000)
 
     # plot results
     plt.plot(smooth(dynaQ.episode_lengths, 10))
