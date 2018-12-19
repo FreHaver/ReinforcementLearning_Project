@@ -61,13 +61,17 @@ def run_baseline(num_steps):
 if __name__ == "__main__":
 
     # number of runs for variance
-    runs = 5
+    runs = 10
 
     # parameters
-    training_steps = [500, 1000, 5000, 10000]
-    planning_steps = [5, 5, 5, 5]
-    # training_steps = [500]
-    # planning_steps = [5]
+    updates = False
+    base = False
+    # training_steps = [500, 1000, 5000, 10000]
+    # planning_steps = [5, 5, 5, 5]
+    # training_steps = [5000, 5000, 5000, 5000]
+    # planning_steps = [1, 3, 5, 10]
+    training_steps = [5000]
+    planning_steps = [3]
 
     # initialize means
     tab_means, deep_means, base_means = [], [], []
@@ -86,20 +90,29 @@ if __name__ == "__main__":
             torch.manual_seed(i + j)
             env.seed(i + j)
 
-            deep_train_lengths, deep_test_lengths = run_deep(steps, n)
-            tab_train_lengths, tab_test_lengths = run_tabular(steps, n)
-            base_train, base_test_lengths = run_baseline(steps)
+            if not updates:
+                # deep_train_lengths, deep_test_lengths = run_deep(steps, n)
+                tab_train_lengths, tab_test_lengths = run_tabular(steps, n)
+                if base:
+                    base_train, base_test_lengths = run_baseline(steps)
 
-            tab_means_inter.append(np.mean(np.array(tab_test_lengths)))
-            deep_means_inter.append(np.mean(np.array(deep_test_lengths)))
-            base_means_inter.append(np.mean(np.array(base_test_lengths)))
+                tab_means_inter.append(np.mean(np.array(tab_test_lengths)))
+                # deep_means_inter.append(np.mean(np.array(deep_test_lengths)))
+            else:
+                if base:
+                    base_train, base_test_lengths = run_baseline(steps * n + steps)
+            if base:
+                base_means_inter.append(np.mean(np.array(base_test_lengths)))
 
-        tab_means.append(np.mean(np.array(tab_means_inter)))
-        tab_vars.append(np.std(np.array(tab_means_inter)))
-        deep_means.append(np.mean(np.array(deep_means_inter)))
-        deep_vars.append(np.std(np.array(deep_means_inter)))
-        base_means.append(np.mean(np.array(base_means_inter)))
-        base_vars.append(np.std(np.array(base_means)))
+        if not updates:
+            tab_means.append(np.mean(np.array(tab_means_inter)))
+            tab_vars.append(np.std(np.array(tab_means_inter)))
+            # deep_means.append(np.mean(np.array(deep_means_inter)))
+            # deep_vars.append(np.std(np.array(deep_means_inter)))
+
+        if base:
+            base_means.append(np.mean(np.array(base_means_inter)))
+            base_vars.append(np.std(np.array(base_means)))
 
     print("Tabular")
     print("Means")

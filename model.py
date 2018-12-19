@@ -34,6 +34,9 @@ class DynaQ(object):
         # set environment
         self.environment = env
 
+        # need test environment for calculating model error
+        self.test_environment = env
+
         # only once load the bins and values for making the continuos values discrete
         # compute_bins(c_pos_bounds, c_vel_bounds, p_pos_bounds, p_vel_bounds, n_bins=10):
         self.edges, self.averages = compute_bins([-2.4, 2.4], [-1.5, 1.5], [-0.21, 0.21], [-1.5, 1.5])
@@ -56,6 +59,7 @@ class DynaQ(object):
         # initialize stats
         self.episode_lengths = []
         self.total_rewards = []
+
 
     def reset_data(self):
         self.episode_lengths = []
@@ -145,6 +149,7 @@ class DynaQ(object):
             state = random.choice(list(self.visited_pairs.keys()))
             action = random.choice(list(self.visited_pairs[state]))
             next_state, reward = self.model(state, action)
+
             done = is_done(next_state)
             self.update_action_value_function(state, next_state, action, reward, done)
 
@@ -274,6 +279,8 @@ class TabularDynaQ(DynaQ):
         self.discount_factor = discount_factor
         self.deterministic = deterministic
 
+        self.tabular = True
+
     def action_values(self, state):
         return self.Q[state]
 
@@ -341,6 +348,8 @@ class DeepDynaQ(DynaQ):
         self.true_gradient = true_gradient
         self.batch_size = batch_size
         self.model_batch = model_batch
+
+        self.tabular = False
 
     def action_values(self, state):
         # should take state and return Q values for that state
@@ -529,9 +538,9 @@ if __name__ == "__main__":
         title = 'Episode lengths Tabular Dyna-Q'
         dynaQ = TabularDynaQ(env,
                              planning_steps=n, discount_factor=discount_factor, lr=learning_rate, epsilon=0.2,
-                             deterministic=False)
+                             deterministic=True)
 
-    dynaQ.learn_policy(1000)
+    dynaQ.learn_policy(5000)
 
     # plot results
     plt.plot(smooth(dynaQ.episode_lengths, 10))

@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
     edges, averages = compute_bins()
 
-    test_state = np.array([0.03432708,  0.0007369 , 0.5, -0.04862195])
+    test_state = np.array([0.03432708,  0.0007369, 0.5, -0.04862195])
     print('Old state: ', test_state)
     new_state = converge_state(test_state, edges, averages)
     print('New state: ', new_state)
